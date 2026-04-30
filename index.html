@@ -390,6 +390,16 @@
           <label>Your Name</label>
           <input type="text" id="w-name" placeholder="Enter your name" required>
         </div>
+        <script>
+          (function(){
+            var g = new URLSearchParams(window.location.search).get('guest');
+            if(g){
+              document.getElementById('name-group').style.display='none';
+              document.getElementById('name-row').style.gridTemplateColumns='1fr';
+              document.getElementById('w-name').value = decodeURIComponent(g);
+            }
+          })();
+        </script>
         <div class="form-group">
           <label>Attending?</label>
           <div class="attending-group">
@@ -502,23 +512,24 @@
     const btn = document.getElementById('submit-btn');
     btn.disabled = true; btn.textContent = 'Sending…';
 
-    const payload = {
-      name: name,
-      wishes: wishes,
-      attending: attending ? attending.value : 'Not specified'
-    };
+    // Build form-encoded body — works reliably with Apps Script + no-cors
+    const body = new URLSearchParams();
+    body.append('name', name);
+    body.append('wishes', wishes);
+    body.append('attending', attending ? attending.value : 'Not specified');
 
     try {
       await fetch('https://script.google.com/macros/s/AKfycbzbTgJ6Kh622DRcHDi_A2AWSBTe-3HpZbD2sdcARQUxgq6HkTBTtExXKNJwpOC3SU8/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: body
       });
+      // no-cors gives opaque response — assume success if no exception
       document.getElementById('wishes-form').style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
     } catch(err) {
-      btn.disabled = false; btn.textContent = '◆   Send Wishes';
+      btn.disabled = false;
+      btn.innerHTML = '◆ &nbsp; Send Wishes';
       errEl.textContent = 'Something went wrong. Please try again.';
       errEl.style.display = 'block';
     }
