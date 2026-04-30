@@ -466,18 +466,26 @@
 
 <script>
   // GUEST GREETING from ?guest=Name
-  (function() {
+  document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
     const guest = params.get('guest');
     if (guest) {
+      const guestName = decodeURIComponent(guest);
+      // Show greeting bar
       const bar = document.getElementById('guest-greeting');
-      bar.textContent = '🌸 Welcome, ' + decodeURIComponent(guest) + '! You are invited to celebrate Vaishnavi & Giridharan's wedding 🌸';
+      bar.textContent = '🌸 Welcome, ' + guestName + '! You are invited to celebrate Vaishnavi & Giridharan’s wedding 🌸';
       bar.style.display = 'block';
-      // Pre-fill name in form
+      // Pre-fill name silently
       const nameInput = document.getElementById('w-name');
-      if (nameInput) nameInput.value = decodeURIComponent(guest);
+      if (nameInput) nameInput.value = guestName;
+      // Hide name field
+      const nameGroup = document.getElementById('name-group');
+      if (nameGroup) nameGroup.style.display = 'none';
+      // Make attending full width
+      const nameRow = document.getElementById('name-row');
+      if (nameRow) nameRow.style.gridTemplateColumns = '1fr';
     }
-  })();
+  });
 
   // SUBMIT WISH
   async function submitWish() {
